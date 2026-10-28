@@ -1,0 +1,6 @@
+{
+  "summary":  "Plano detalhado de implementação para unificação e sincronização em tempo real entre CloudBridge e Backblaze B2, com normalização de nomes, verificação ao vivo da integridade no S3 e alinhamento visual com a Editora JC.",
+  "updatedAt":  "2026-10-28T12:13:38.416542201Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

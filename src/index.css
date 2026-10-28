@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --jc-green: #005d3b;
+    --jc-green-dark: #00472e;
+    --jc-green-light: #008d70;
+    --jc-gold: #B09147;
+    --jc-gold-light: #d3b466;
+    --jc-gold-bg: #f3e8ce;
+    --jc-bg: #F2F2EB;
+    --jc-dark: #1f2124;
+    --jc-border: #e2ded4;
+  }
+
+  body {
+    font-family: 'Montserrat', 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #F2F2EB;
+    color: #1f2124;
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: 'STIX Two Text', Georgia, Cambria, serif;
+  }
+}
