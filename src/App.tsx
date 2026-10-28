@@ -12,8 +12,12 @@ import { Toast } from './components/Toast';
 import { TransferModal, TransferModalFile } from './components/TransferModal';
 
 export const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // Logged in so user immediately sees connected Azure!
-  const [userEmail, setUserEmail] = useState<string>('atendimento@qrcomunicacao.com.br');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('jc_auth_token') === 'true';
+  });
+  const [userEmail, setUserEmail] = useState<string>(() => {
+    return localStorage.getItem('jc_auth_email') || 'atendimento@qrcomunicacao.com.br';
+  });
   const [currentPage, setCurrentPage] = useState<PageId>('dashboard');
   const [files, setFiles] = useState<FileItem[]>(INITIAL_FILES);
   const [paths, setPaths] = useState<Record<CloudProvider, string>>({
@@ -199,6 +203,8 @@ export const App: React.FC = () => {
   }, [fetchAzureItems]);
 
   const handleLogin = (email: string) => {
+    localStorage.setItem('jc_auth_token', 'true');
+    localStorage.setItem('jc_auth_email', email);
     setUserEmail(email);
     setIsAuthenticated(true);
     setCurrentPage('dashboard');
@@ -206,9 +212,11 @@ export const App: React.FC = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('jc_auth_token');
     setIsAuthenticated(false);
     setCurrentPage('dashboard');
     setSearchQuery('');
+    showToast('Sessão encerrada com sucesso.');
   };
 
   const handleSearchChange = (query: string) => {

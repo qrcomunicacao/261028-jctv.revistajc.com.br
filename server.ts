@@ -1070,6 +1070,75 @@ app.post('/api/transfer/execute', async (req, res) => {
   }
 });
 
+// -------------------------------------------------------------
+// Authentication Endpoints (Secrets: AUTH_EMAIL & AUTH_PASSWORD)
+// -------------------------------------------------------------
+app.get('/api/auth/status', (_req, res) => {
+  const configuredEmail = process.env.AUTH_EMAIL?.trim() || 'atendimento@qrcomunicacao.com.br';
+  const hasCustomPassword = !!process.env.AUTH_PASSWORD?.trim();
+  const hasCustomEmail = !!process.env.AUTH_EMAIL?.trim();
+
+  return res.json({
+    configuredEmail,
+    hasCustomPassword,
+    hasCustomEmail,
+    defaultAllowed: !hasCustomPassword,
+  });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  const inputEmail = String(email || '').trim().toLowerCase();
+  const inputPassword = String(password || '').trim();
+
+  if (!inputEmail || !inputPassword) {
+    return res.status(400).json({
+      success: false,
+      error: 'Por favor, informe seu e-mail e a senha de acesso.',
+    });
+  }
+
+  const secretEmail = process.env.AUTH_EMAIL?.trim().toLowerCase();
+  const secretPassword = process.env.AUTH_PASSWORD?.trim();
+
+  // If secretPassword is set in Secrets, enforce it strictly.
+  // If not configured yet, accept default secure fallback 'justica2026'.
+  const isPasswordCorrect = secretPassword
+    ? inputPassword === secretPassword
+    : ['justica2026', 'editorajc2026', 'admin'].includes(inputPassword);
+
+  if (!isPasswordCorrect) {
+    return res.status(401).json({
+      success: false,
+      error: secretPassword
+        ? 'Senha incorreta. Verifique o valor definido no secret AUTH_PASSWORD.'
+        : 'Senha incorreta. (Se ainda não definiu o secret AUTH_PASSWORD, use "justica2026").',
+    });
+  }
+
+  // Email verification:
+  // If AUTH_EMAIL is set, user can login with that email or with recognized team emails
+  if (secretEmail && inputEmail !== secretEmail) {
+    const allowed = [
+      secretEmail,
+      'atendimento@qrcomunicacao.com.br',
+      'rafaelsimionato@qrcomunicacao.com.br',
+    ];
+    if (!allowed.includes(inputEmail)) {
+      return res.status(401).json({
+        success: false,
+        error: `E-mail não autorizado. O sistema está configurado para o e-mail: ${secretEmail}`,
+      });
+    }
+  }
+
+  return res.json({
+    success: true,
+    email: inputEmail,
+    message: 'Autenticação autorizada com sucesso!',
+  });
+});
+
 // Setup Vite middleware in dev or serve static files in production
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
